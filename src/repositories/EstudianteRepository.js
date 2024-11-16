@@ -9,6 +9,43 @@ module.exports = {
         }catch(error){
             console.error('Ocurrio un problema al consultar la lista de estudiantes: ', error);
         }
+    },
+
+    // Eliminar un estudiante
+    eliminarEstudiante: async(idestudiante) => {
+    try
+    {
+    const result = await pool.query('DELETE FROM estudiantes WHERE idestudiante = ?', [idestudiante]);
+    return result.affectedRows > 0;
     }
+    catch(error)
+    {
+    console.error('Erro al eliminar el registro', error);
+    }
+    }, 
+
+    // Insertar un nuevo estudiante
+    insertarEstudiante: async(estudiante) => {
+        try {
+            const { nombre, apellido, email, idcarrera, usuario } = estudiante;
+            const result = await pool.query('INSERT INTO estudiantes (nombre, apellido, email, idcarrera, usuario) VALUES (?, ?, ?, ?, ?)', [nombre, apellido, email, idcarrera, usuario]);
+            return result.insertId;
+        } catch (error) {
+            console.error('Error al insertar el estudiante', error);
+        }
+    },
+
+    // Actualizar un estudiante existente
+    actualizarEstudiante: async(idestudiante, estudiante) => {
+        try {
+            const { nombre, apellido, email, idcarrera, usuario } = estudiante;
+            const result = await pool.query('UPDATE estudiantes SET nombre = ?, apellido = ?, email = ?, idcarrera = ?, usuario = ? WHERE idestudiante = ?', [nombre, apellido, email, idcarrera, usuario, idestudiante]);
+            return result.affectedRows > 0;
+        } catch (error) {
+            console.error('Error al actualizar el estudiante', error);
+        }
+    }
+    
 
 }
+
