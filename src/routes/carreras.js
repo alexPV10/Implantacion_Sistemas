@@ -1,39 +1,74 @@
 const express = require('express');
 const router = express.Router();
-const queries = require('../repositories/CarreraRepository'); // Cambié el nombre del módulo a CarreraRepository
+const queries = require('../repositories/CarreraRepository');
+const { isLoggedIn } = require('../lib/auth');
 
-// Endpoint para mostrar todas las carreras
-router.get('/', async (request, response) => {
-    const carreras = await queries.obtenerTodasLasCarreras(); // Cambié el método a "obtenerTodasLasCarreras"
-    response.render('carreras/listado', {carreras}); // Renderizamos el listado de carreras
+// Endpoint para mostrar todos las carreras
+router.get('/', isLoggedIn, async (request, response) => {
+    const carreras = await queries.obtenerTodasLasCarreras();
+
+    response.render('carreras/listado', {carreras}); // Mostramos el listado de carreras
 });
 
 // Endpoint que permite mostrar el formulario para agregar una nueva carrera
-router.get('/agregar', async(request, response) => {
+router.get('/agregar', isLoggedIn, async(request, response) => {
     response.render('carreras/agregar'); // Renderizamos el formulario
 });
 
 // Endpoint para agregar una carrera
-router.post('/agregar', async(request, response) => {
-    const { idcarrera, carrera, opcion } = request.body; // Extraemos los datos del formulario
-    const resultado = await queries.insertarCarrera({ idcarrera, carrera, opcion }); // Usamos "insertarCarrera"
-    if (resultado) {
-        console.log('Carrera agregada con éxito');
-        response.redirect('/carreras'); // Redireccionamos a la lista de carreras
+router.post('/agregar', isLoggedIn, async(request, response) => {
+    const { carrera } = request.body; // Obtén el nombre de la carrera desde el formulario
+
+    if (carrera) {
+        const resultado = await queries.agregarCarrera(carrera);
+        if (resultado) {
+            request.flash('success', 'Registro insertado con exito');
+        } else {
+            request.flash('error', 'Ocurrio un problema al guardar el registro');
+        }
     } else {
-        console.error('Error al agregar la carrera');
-        response.render('carreras/agregar', { error: 'No se pudo agregar la carrera' }); // Muestra un mensaje de error
+        request.flash('error', 'El nombre de la carrera es requerido');
+    }
+
+    response.redirect('/carreras');
+});
+
+// Endpoint que permite mostrar el formulario para actualizar una nueva carrera
+router.get('/actualizar/:idcarrera', isLoggedIn, async(request, response) => {
+    const { idcarrera } = request.params;
+    const carrera = await queries.obtenerCarreraPorId(idcarrera);
+
+    if (carrera) {
+        response.render('carreras/actualizar', { carrera }); // Renderiza el formulario y pasa la carrera actual para prellenar los datos
+    } else {
+        response.status(404).send('Carrera no encontrada');
     }
 });
 
-// Endpoint que permite eliminar una carrera
-router.get('/eliminar/:idcarrera', async(request, response) => {
+// Endpoint para actualizar una carrera
+router.post('/actualizar/:idcarrera', isLoggedIn, async(request, response) => {
     const { idcarrera } = request.params;
-    const resultado = await queries.eliminarCarrera(idcarrera); // Usamos "eliminarCarrera"
-    if (resultado) {
-        console.log('Carrera eliminada con éxito');
+    const { carrera } = request.body;
+    const resultado = await queries.actualizarCarrera(idcarrera, carrera);
+    if(resultado > 0){
+        request.flash('success', 'Registro actualizado con exito');
+    } else {
+        request.flash('error', 'Ocurrio un problema al actualizar el registro');
     }
-    response.redirect('/carreras'); // Redireccionamos a la lista de carreras
+    
+    response.redirect('/carreras');
+});
+
+// Endpoint que permite eliminar una carrera
+router.get('/eliminar/:idcarrera', isLoggedIn, async(request, response) => {
+    const { idcarrera } = request.params;  // Desestructuramos el objeto que nos mandan en la peticion y extraemos el idcarrera
+    const resultado = await queries.eliminarCarrera(idcarrera);
+    if(resultado > 0){
+        request.flash('success', 'Eliminación correcta');
+    }  else {
+        request.flash('error', 'Error al eliminar');
+    }
+    response.redirect('/carreras');
 });
 
 module.exports = router;

@@ -1,18 +1,19 @@
 <div class="container p-4">
     <div class="row justify-content-center">
-        <h1>Agregar estudiante</h1>
+        <h1>Actualizar estudiante</h1>
     </div>
     <div class="row justify-content-center mt-4">
         <div class="col-md-4">
             <form method="POST">
                 <div class="form-group mb-3">
-                    <input type="text" class="form-control" name="nombre" placeholder="Nombre del estudiante" autofocus />
+                    <!-- El campo de texto está prellenado con el nombre actual del estudiante -->
+                    <input type="text" class="form-control" name="nombre" value="{{estudiante.nombre}}" autofocus />
                 </div>
                 <div class="form-group mb-3">
-                    <input type="text" class="form-control" name="apellido" placeholder="Apellido del estudiante" >
+                    <input type="text" class="form-control" name="apellido" value="{{estudiante.apellido}}" autofocus />
                 </div>
                 <div class="form-group mb-3">
-                    <input type="email" class="form-control" name="email" placeholder="Correo del estudiante" >
+                    <input type="email" class="form-control" name="email" value="{{estudiante.email}}" autofocus />
                 </div>
                 <div class="form-group mb-3">
                     <select class="form-control" name="idcarrera" required>
@@ -23,10 +24,10 @@
                     </select>
                 </div>
                 <div class="form-group mb-3">
-                    <input type="text" class="form-control" name="usuario" placeholder="Usuario del estudiante" >
+                    <input type="text" class="form-control" name="usuario" value="{{estudiante.usuario}}" autofocus />
                 </div>
                 <div class="form-group mb-3">
-                    <button class="btn btn-success btn-block">Guardar</button>
+                    <button class="btn btn-success btn-block">Actualizar</button>
                 </div>
             </form>
         </div>

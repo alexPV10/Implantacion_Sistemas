@@ -1,21 +1,12 @@
+// Este archivo sera utilizado para configurar todas las rutas principales del sistema
 const express = require('express');
 const router = express.Router();
 const estudianteRepository = require('../repositories/EstudianteRepository');
-const carreraRepository = require('../repositories/CarreraRepository');
+const { isLoggedIn } = require('../lib/auth');
 
-router.get('/', async (request, response) => {
-    const lstEstudiantes = await estudianteRepository.obtenerTodosLosEstudiantes();
-    console.log('Listado: ', lstEstudiantes);
-
-    response.send('Bienvenido al laboratorio de IMPS');
-});
-
-// Endpoint para mostrar todas las carreras
-router.get('/', async (request, response) => {
-    const lstCarreras = await carreraRepository.obtenerTodasLasCarreras(); // Obtiene todas las carreras desde el repositorio
-    console.log('Listado de carreras: ', lstCarreras); // Puedes quitar el `console.log` en producción
-
-    response.send('Bienvenido al laboratorio de IMPS');
+// Configuracion de ruta inicial de la aplicacion
+router.get('/', isLoggedIn, async (request,response) => {
+    response.render('home/home');
 });
 
 module.exports = router;
